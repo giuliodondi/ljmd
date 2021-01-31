@@ -4,8 +4,7 @@
 #include "common.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* a few physical constants */
@@ -30,7 +29,7 @@ extern void force(mdsys_t *sys);
 extern void velverlet(mdsys_t *sys);
 
 
-#ifdef __cplusplus	
+#ifdef __cplusplus
 }
 #endif
 

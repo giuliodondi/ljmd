@@ -9,7 +9,7 @@
 
 class Ekin_T_Test : public ::testing::Test {
 
-      protected:
+protected:
         mdsys_t *sys;
 
         void SetUp() {

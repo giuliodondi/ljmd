@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
                 /* propagate system and recompute energies */
                 velverlet(&sys);
-                ekin(&sys);
+				ekin(&sys);
         }
         /**************************************************/
 
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
         fclose(erg);
         fclose(traj);
 
-	cleanup_mdsys(&sys);
+        cleanup_mdsys(&sys);
 
         return 0;
 }
