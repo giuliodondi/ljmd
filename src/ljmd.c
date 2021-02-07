@@ -118,20 +118,9 @@ int main(int argc, char **argv) {
         /* main MD loop */
         for (sys.nfi = 1; sys.nfi <= sys.nsteps; ++sys.nfi) {
 
-#if defined(MPI_ENABLED)
-                mpi_exchange_positions(nprocs, proc_id, &proc_seg, &sys);
-
-#endif
-
                 /* write output, if requested */
-#if defined(MPI_ENABLED)
-                if (proc_id == 0) {
-#endif
-                        if ((sys.nfi % nprint) == 0)
-                                output(&sys, erg, traj);
-#if defined(MPI_ENABLED)
-                }
-#endif
+                if ((sys.nfi % nprint) == 0)
+                        output(&sys, erg, traj);
 
                 /* propagate system and recompute energies */
                 /* use the split versin of Verlet algorithm*/
