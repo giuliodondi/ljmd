@@ -27,6 +27,10 @@ int main(int argc, char **argv) {
         FILE *traj, *erg;
         mdsys_t sys;
         double t_start;
+	
+#if defined(TIMING)
+        double io_t = 0, force_t = 0, e_kin_t = 0, verlet_t = 0, tmp_t;
+#endif
 
 #if defined(MPI_ENABLED)
         int nprocs, proc_id;
@@ -54,11 +58,18 @@ int main(int argc, char **argv) {
 #endif
 
         t_start = wallclock();
+#if defined(TIMING)
+        tmp_t = t_start;
+#endif
 
         char init_err = initialise(&sys, stdin, &fnames, &nprint);
         if (init_err) {
                 return init_err;
         }
+	
+#if defined(TIMING)
+        io_t += wallclock() - tmp_t;
+#endif
 
 #if defined(MPI_ENABLED)
 
@@ -95,11 +106,22 @@ for (int i = 0; i < nprocs; ++i) {
 
         /* initialize forces and energies.*/
         sys.nfi = 0;
+	
+#if defined(TIMING)
+        tmp_t = wallclock();
+#endif
 
         force(&sys);
+#if defined(TIMING)
+        force_t += wallclock() - tmp_t;
+		tmp_t = wallclock();
+#endif
         ekin(&sys);
 #if defined(MPI_ENABLED)
         mpi_reduce_UKT(&sys);
+#endif
+#if defined(TIMING)
+        e_kin_t += wallclock() - tmp_t;
 #endif
 
 #if defined(MPI_ENABLED)
@@ -150,34 +172,92 @@ for (int i = 0; i < nprocs; ++i) {
 
                 /* propagate system and recompute energies */
                 /* use the split versin of Verlet algorithm*/
+#if defined(TIMING)
+                tmp_t = wallclock();
+#endif
                 verlet_1(&sys);
+#if defined(TIMING)
+                verlet_t += wallclock() - tmp_t;
+				tmp_t = wallclock();
+#endif
 #if defined(MPI_ENABLED)
                 mpi_exchange_positions(&sys, count, offsets);
 #endif
                 force(&sys);
+#if defined(TIMING)
+                force_t += wallclock() - tmp_t;
+				tmp_t = wallclock();
+#endif
                 verlet_2(&sys);
+#if defined(TIMING)
+				verlet_t += wallclock() - tmp_t;
+				tmp_t = wallclock();
+#endif
                 ekin(&sys);
 #if defined(MPI_ENABLED)
                 mpi_reduce_UKT(&sys);
+#endif
+#if defined(TIMING)
+				e_kin_t += wallclock() - tmp_t;
 #endif
         }
         /**************************************************/
 
         /* clean up: close files, free memory */
-
+        cleanup_mdsys(&sys);
 #if defined(MPI_ENABLED)
         if (proc_id == 0) {
 #endif
-                printf("Simulation Done. Run time: %10.3fs\n",
-                       wallclock() - t_start);
                 fclose(erg);
                 fclose(traj);
 
 #if defined(MPI_ENABLED)
         }
 #endif
+        /*	print detailed timng information collected
+                if MPI we need to reduce the timing values
+        */
 
-        cleanup_mdsys(&sys);
+#if defined(TIMING)
+		double time_arr[] = {wallclock() - t_start, force_t, verlet_t, e_kin_t};
+
+        for (int t = 1; t < 4; ++t) {
+                time_arr[t] /= sys.nsteps;
+        }
+	
+#if defined(MPI_ENABLED)
+        double avg_time_arr[] = {0, 0, 0, 0};
+        MPI_Reduce(&time_arr, &avg_time_arr, 4, MPI_DOUBLE, MPI_SUM, 0,
+                   MPI_COMM_WORLD);
+
+        if (proc_id == 0) {
+                for (int pr = 0; pr < 2; ++pr) {
+                        avg_time_arr[pr] /= nprocs;
+                }
+#endif
+
+                printf("Simulation Done.\n");
+#if defined(MPI_ENABLED)
+
+                printf("Data read time 		: %10.8fs.\n", io_t);
+                printf("Avg Force calc time 	: %10.8fs.\n", avg_time_arr[1]);
+                printf("Avg Verlet calc time 	: %10.8fs.\n", avg_time_arr[2]);
+                printf("Avg Ekin calc time 		: %10.8fs.\n", avg_time_arr[3]);
+                printf("Avg total time 		: %10.8fs.\n", avg_time_arr[0]);
+        }
+#else
+        printf("Data read time 		: %10.8fs.\n", io_t);
+        printf("Force calc time 	: %10.8fs.\n", time_arr[1]);
+        printf("Verlet calc time 	: %10.8fs.\n", time_arr[2]);
+        printf("Ekin calc time 		: %10.8fs.\n", time_arr[3]);
+        printf("total time 		: %10.8fs.\n", time_arr[0]);
+#endif
+
+        /* just print the wallclock time*/
+#else
+        printf("Simulation Done. Run time: %10.3fs\n", wallclock() - t_start);
+
+#endif
 
 #if defined(MPI_ENABLED)
         MPI_Finalize();

@@ -78,15 +78,19 @@ list(APPEND main_flags -Wall -g -O3 -ffast-math -fomit-frame-pointer)
 
 #compile options
 target_compile_options (${tgt_name}  PRIVATE ${main_flags}  )
-target_compile_definitions(${tgt_name}  PRIVATE LJMD_VERSION=1.0)
+get_target_property(LJMD_COMPILE_OPT ${tgt_name}  COMPILE_OPTIONS)
+message("-- ljmd main compiler flags are: ${LJMD_COMPILE_OPT}")
 
+
+target_compile_definitions(${tgt_name}  PRIVATE LJMD_VERSION=1.0)
 if(ENABLE_MPI)
 	target_compile_definitions(${tgt_name}  PRIVATE MPI_ENABLED=1)
 endif()
+if(ENABLE_TIMING)
+	target_compile_definitions(${tgt_name}  PRIVATE TIMING=1)
+endif()
 
 
-get_target_property(LJMD_COMPILE_OPT ${tgt_name}  COMPILE_OPTIONS)
-message("-- ljmd main compiler flags are: ${LJMD_COMPILE_OPT}")
 
 
 

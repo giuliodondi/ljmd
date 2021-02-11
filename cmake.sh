@@ -7,7 +7,7 @@ mkdir build
 cd build
 
 
-FLAGS="-DENABLE_TESTING=ON"
+FLAGS="-DENABLE_TESTING=ON -DCMAKE_BUILD_TYPE=Debug -DENABLE_TIMING=ON"
 
 for arg in "$@"
 do
