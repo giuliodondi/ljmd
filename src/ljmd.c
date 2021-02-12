@@ -219,9 +219,10 @@ for (int i = 0; i < nprocs; ++i) {
         */
 
 #if defined(TIMING)
+		int t; pr;
 		double time_arr[] = {wallclock() - t_start, force_t, verlet_t, e_kin_t};
 
-        for (int t = 1; t < 4; ++t) {
+        for (t = 1; t < 4; ++t) {
                 time_arr[t] /= sys.nsteps;
         }
 	
@@ -231,7 +232,7 @@ for (int i = 0; i < nprocs; ++i) {
                    MPI_COMM_WORLD);
 
         if (proc_id == 0) {
-                for (int pr = 0; pr < 2; ++pr) {
+                for (pr = 0; pr < 2; ++pr) {
                         avg_time_arr[pr] /= nprocs;
                 }
 #endif
