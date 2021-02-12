@@ -39,14 +39,12 @@ int main(int argc, char **argv) {
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
         MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);
 
-        mpi_hello(proc_id);
-
         arr_seg_t proc_seg;
 
         sys.nprocs = nprocs;
         sys.proc_id = proc_id;
         sys.proc_seg = &proc_seg;
-
+		sys.proc_seg->splitting = (int *)malloc(nprocs * sizeof(int));
 #endif
 
 #if defined(MPI_ENABLED)
@@ -96,7 +94,6 @@ for (int i = 0; i < nprocs; ++i) {
 }
  */
 #endif
-
 #if defined(MPI_ENABLED)
         int count[nprocs];
         int offsets[nprocs];
@@ -112,6 +109,9 @@ for (int i = 0; i < nprocs; ++i) {
 #endif
 
         force(&sys);
+#if defined(MPI_ENABLED)
+        mpi_reduce_forces(&sys, count, offsets);
+#endif
 #if defined(TIMING)
         force_t += wallclock() - tmp_t;
 		tmp_t = wallclock();
@@ -184,6 +184,9 @@ for (int i = 0; i < nprocs; ++i) {
                 mpi_exchange_positions(&sys, count, offsets);
 #endif
                 force(&sys);
+#if defined(MPI_ENABLED)
+        		mpi_reduce_forces(&sys, count, offsets);
+#endif
 #if defined(TIMING)
                 force_t += wallclock() - tmp_t;
 				tmp_t = wallclock();

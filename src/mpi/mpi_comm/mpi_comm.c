@@ -4,6 +4,27 @@
 #include "mpi_headers/mpi_utils.h"
 #include <mpi.h>
 
+void mpi_reduce_forces(mdsys_t *sys, const int *count, const int *offsets) {
+
+        /* reduction in place, two different signatures for master and children
+         */
+        if (sys->proc_id == 0) {
+                MPI_Reduce(MPI_IN_PLACE, sys->fx, sys->natoms, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+                MPI_Reduce(MPI_IN_PLACE, sys->fy, sys->natoms, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+                MPI_Reduce(MPI_IN_PLACE, sys->fz, sys->natoms, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+        } else {
+                MPI_Reduce(sys->fx, sys->fx, sys->natoms, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+                MPI_Reduce(sys->fy, sys->fy, sys->natoms, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+                MPI_Reduce(sys->fz, sys->fz, sys->natoms, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+        }
+}
+
 void mpi_send_pos_vel(mdsys_t *sys) {
 
         /*	v{x,y,z}buf will act as the send buffer for velocities

@@ -8,15 +8,21 @@ extern "C" {
 struct arr_seg {
         int idx;
         int size;
-        int splitting[3];
+        int *splitting;
 };
 typedef struct arr_seg arr_seg_t;
 
-void mpi_hello(int proc_id);
+extern int right_triangle_area(int l);
+
+extern void max_min_arr(int *arr, int length, int *max_out, int *min_out);
+
+extern int max_min_index(int *arr, int length, int swch);
+
+extern void split_triangle_equal_areas(int size, int nprocs, int *segment,
+                                       int *segment_areas);
 
 extern void init_segments(const int nprocs, const int proc_id,
                           arr_seg_t *proc_seg, const int size);
-extern void split_dimension(const int nprocs, const int size, int splitting[3]);
 
 extern void mpi_collective_comm_arrays(const int nprocs,
                                        const int *const splitting, int *count,

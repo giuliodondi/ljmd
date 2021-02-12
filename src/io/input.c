@@ -130,18 +130,16 @@ int initialise(mdsys_t *sys, FILE *infile, file_names *fnames, int *nprint) {
         sys->rx = (double *)malloc(sys->natoms * sizeof(double));
         sys->ry = (double *)malloc(sys->natoms * sizeof(double));
         sys->rz = (double *)malloc(sys->natoms * sizeof(double));
+		sys->fx = (double *)malloc(sys->natoms * sizeof(double));
+        sys->fy = (double *)malloc(sys->natoms * sizeof(double));
+        sys->fz = (double *)malloc(sys->natoms * sizeof(double));
 #if !defined(MPI_ENABLED)
         sys->vx = (double *)malloc(sys->natoms * sizeof(double));
         sys->vy = (double *)malloc(sys->natoms * sizeof(double));
         sys->vz = (double *)malloc(sys->natoms * sizeof(double));
-        sys->fx = (double *)malloc(sys->natoms * sizeof(double));
-        sys->fy = (double *)malloc(sys->natoms * sizeof(double));
-        sys->fz = (double *)malloc(sys->natoms * sizeof(double));
+        
 #else
         int seg_size = sys->proc_seg->size;
-        sys->fx = (double *)malloc(seg_size * sizeof(double));
-        sys->fy = (double *)malloc(seg_size * sizeof(double));
-        sys->fz = (double *)malloc(seg_size * sizeof(double));
         if (sys->proc_id > 0) {
                 sys->vx = (double *)malloc(seg_size * sizeof(double));
                 sys->vy = (double *)malloc(seg_size * sizeof(double));

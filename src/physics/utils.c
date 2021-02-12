@@ -10,6 +10,10 @@ static void cleanup_double(double **p) {
 }
 
 void cleanup_mdsys(mdsys_t *sys) {
+
+#if defined(MPI_ENABLED)
+        free(sys->proc_seg->splitting);
+#endif
         cleanup_double(&sys->rx);
         cleanup_double(&sys->ry);
         cleanup_double(&sys->rz);
