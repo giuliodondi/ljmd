@@ -16,7 +16,8 @@ void split_dimension(const int nprocs, const int size, int splitting[3]) {
 
         int n1 = 0, n2 = 0, tot_size;
 
-        for (int i = 0; i < nprocs; ++i) {
+		int i;
+        for (i = 0; i < nprocs; ++i) {
                 n1 = (nprocs - i);
                 n2 = i;
                 tot_size = n1 * h1 + n2 * h2;
@@ -51,8 +52,8 @@ void init_segments(const int nprocs, const int proc_id, arr_seg_t *proc_seg,
 extern void mpi_collective_comm_arrays(const int nprocs,
                                        const int *const splitting, int *count,
                                        int *offsets) {
-
-        for (int p = 0; p < nprocs; ++p) {
+		int p;
+        for (p = 0; p < nprocs; ++p) {
                 if (p < splitting[0]) {
                         count[p] = splitting[1];
                         offsets[p] = p * splitting[1];
