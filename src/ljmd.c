@@ -219,7 +219,7 @@ for (int i = 0; i < nprocs; ++i) {
         */
 
 #if defined(TIMING)
-		int t; pr;
+		int t, pr;
 		double time_arr[] = {wallclock() - t_start, force_t, verlet_t, e_kin_t};
 
         for (t = 1; t < 4; ++t) {
