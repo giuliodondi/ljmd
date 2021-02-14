@@ -4,7 +4,6 @@
 
 #include "mpi_headers/mpi_utils.h"
 
-void mpi_hello(int proc_id) { printf("hello from %d\n", proc_id); }
 
 void split_dimension(const int nprocs, const int size, int splitting[3]) {
 

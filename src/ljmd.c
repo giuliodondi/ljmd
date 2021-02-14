@@ -39,7 +39,6 @@ int main(int argc, char **argv) {
         MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
         MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);
 
-        mpi_hello(proc_id);
 
         arr_seg_t proc_seg;
 
@@ -71,31 +70,6 @@ int main(int argc, char **argv) {
         io_t += wallclock() - tmp_t;
 #endif
 
-#if defined(MPI_ENABLED)
-
-/*
-        if (proc_id == 0) {
-                for (int j = 0;  j < (sys.natoms); ++j) {
-                        printf("%d  %20.8f %20.8f %20.8f\n", j + 1,
-                               sys.rx[j], sys.ry[j], sys.rz[j]);
-                }
-        }
-
-MPI_Barrier(MPI_COMM_WORLD);
-
-for (int i = 0; i < nprocs; ++i) {
-        if (proc_id == i) {
-                for (int j = 0; j < (sys.proc_seg->size); ++j) {
-                        printf("%d  %20.8f %20.8f %20.8f\n",
-                               j + sys.proc_seg->idx + 1, sys.vx[j],
-                               sys.vy[j], sys.vz[j]);
-                }
-        }
-        sleep(0.1);
-        MPI_Barrier(MPI_COMM_WORLD);
-}
- */
-#endif
 
 #if defined(MPI_ENABLED)
         int count[nprocs];
@@ -232,7 +206,7 @@ for (int i = 0; i < nprocs; ++i) {
                    MPI_COMM_WORLD);
 
         if (proc_id == 0) {
-                for (pr = 0; pr < 2; ++pr) {
+                for (pr = 0; pr < 4; ++pr) {
                         avg_time_arr[pr] /= nprocs;
                 }
 #endif

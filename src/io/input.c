@@ -120,9 +120,7 @@ int initialise(mdsys_t *sys, FILE *infile, file_names *fnames, int *nprint) {
         }
 
         init_segments(sys->nprocs, sys->proc_id, sys->proc_seg, sys->natoms);
-        printf("%d\n", sys->natoms);
-        printf("%f\n", sys->rcut);
-        printf("%d\n", sys->proc_seg->size);
+
 
 #endif
 

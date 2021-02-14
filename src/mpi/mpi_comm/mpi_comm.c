@@ -103,11 +103,29 @@ void mpi_exchange_positions(mdsys_t *sys, const int *count,
 }
 
 void mpi_reduce_UKT(mdsys_t *sys) {
-
+		/*
         MPI_Allreduce(MPI_IN_PLACE, &sys->epot, 1, MPI_DOUBLE, MPI_SUM,
                       MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE, &sys->ekin, 1, MPI_DOUBLE, MPI_SUM,
                       MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE, &sys->temp, 1, MPI_DOUBLE, MPI_SUM,
                       MPI_COMM_WORLD);
+		*/
+		if (sys->proc_id == 0) {
+                MPI_Reduce(MPI_IN_PLACE, &sys->epot, 1, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+				MPI_Reduce(MPI_IN_PLACE, &sys->ekin, 1, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+				MPI_Reduce(MPI_IN_PLACE, &sys->temp, 1, MPI_DOUBLE,
+                           MPI_SUM, 0, MPI_COMM_WORLD);
+
+        } else {
+                MPI_Reduce(&sys->epot, &sys->epot, 1, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+				MPI_Reduce(&sys->ekin, &sys->ekin, 1, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+				MPI_Reduce(&sys->temp, &sys->temp, 1, MPI_DOUBLE, MPI_SUM,
+                           0, MPI_COMM_WORLD);
+
+        }
 }

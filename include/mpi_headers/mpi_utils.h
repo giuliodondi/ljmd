@@ -12,7 +12,6 @@ struct arr_seg {
 };
 typedef struct arr_seg arr_seg_t;
 
-void mpi_hello(int proc_id);
 
 extern void init_segments(const int nprocs, const int proc_id,
                           arr_seg_t *proc_seg, const int size);
