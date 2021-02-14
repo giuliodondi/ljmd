@@ -18,15 +18,16 @@ jobs:
 
     #prepare cache for openmpi
     - name: Cache openmpi
+      id: cache-openmpi
       uses: actions/cache@v2
       env:
         cache-name: cache-openmpi
         mpi_ver: 4.1.0
         
       with:
-        # openmpi cache files are stored in `~/.openmpi` on Linux/macOS
+        # openmpi cache files are stored in `~/openmpi` on Linux/macOS
         path: "~/openmpi/${{ env.mpi_ver }}"
-        key:  build-${{ env.cache-name }}-${{ hashFiles('./openmpi-4.1.0.tar.gz') }}
+        key:  build-${{ env.cache-name }}-${{ hashFiles('/home/${USER}/.openmpi') }}
 
     - name: get openmpi
       if: steps.cache-openmpi.outputs.cache-hit != 'true'
@@ -39,40 +40,47 @@ jobs:
      
     - name: configure openmpi
       if: steps.cache-openmpi.outputs.cache-hit != 'true'
-      run: ./openmpi-4.1.0/configure --prefix="/home/${USER}/.openmpi"
+      run: ./openmpi-4.1.0/configure --prefix="~/openmpi/${{ env.mpi_ver }}"
       
     - name: install openmpi
       if: steps.cache-openmpi.outputs.cache-hit != 'true'
       run: |
         make -j 2
         sudo make install
+        export PATH="~/openmpi/${{ env.mpi_ver }}/bin:$PATH:"
+        export LD_LIBRARY_PATH="~/openmpi/${{ env.mpi_ver }}/lib:$LD_LIBRARY_PATH:"
         
+        
+    - name: test if openmpi is installed correctly
+      run: mpicc --version
+      
 
 
-    - name: Create Build Environment
-      # Some projects don't allow in-source building, so create a separate build directory
-      # We'll use this as our working directory for all subsequent commands
-      run: cmake -E make_directory ${{github.workspace}}/build
-
-    - name: Configure with CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      # Note the current convention is to use the -S and -B options here to specify source 
-      # and build directories, but this is only available with CMake 3.13 and higher.  
-      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_TESTING=YES -DENABLE_MPI=ON
-
-    - name: Download googletest and Build
-      working-directory: ${{github.workspace}}/build
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config $BUILD_TYPE
-
-    - name: Run Tests
-      working-directory: ${{github.workspace}}/build
-      shell: bash
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C $BUILD_TYPE 
+#    - name: Create Build Environment
+#      # Some projects don't allow in-source building, so create a separate build directory
+#      # We'll use this as our working directory for all subsequent commands
+#      run: cmake -E make_directory ${{github.workspace}}/build
+#
+#    - name: Configure with CMake
+#      # Use a bash shell so we can use the same syntax for environment variable
+#      # access regardless of the host operating system
+#      shell: bash
+#      working-directory: ${{github.workspace}}/build
+#      # Note the current convention is to use the -S and -B options here to specify source 
+#      # and build directories, but this is only available with CMake 3.13 and higher.  
+#      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+#      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENABLE_TESTING=YES -DENABLE_MPI=ON
+#
+#    - name: Download googletest and Build
+#      working-directory: ${{github.workspace}}/build
+#      shell: bash
+#      # Execute the build.  You can specify a specific target with "--target <NAME>"
+#      run: cmake --build . --config $BUILD_TYPE
+#
+#    - name: Run Tests
+#      working-directory: ${{github.workspace}}/build
+#      shell: bash
+#      # Execute tests defined by the CMake configuration.
+#      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+#      run: ctest -C $BUILD_TYPE 
+#
