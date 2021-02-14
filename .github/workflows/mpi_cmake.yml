@@ -51,8 +51,8 @@ jobs:
         export LD_LIBRARY_PATH="/home/${USER}/openmpi/${{ env.mpi_ver }}/lib:$LD_LIBRARY_PATH:"
         
         
-    - name: test if openmpi is installed correctly
-      run: mpicc --version
+#    - name: test if openmpi is installed correctly
+#      run: mpicc --version
       
 
 
