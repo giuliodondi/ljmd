@@ -26,7 +26,7 @@ jobs:
         
       with:
         # openmpi cache files are stored in `~/openmpi` on Linux/macOS
-        path: "~/openmpi/${{ env.mpi_ver }}"
+        path: "/home/${USER}/openmpi/${{ env.mpi_ver }}"
         key:  build-${{ env.cache-name }}-${{ hashFiles('/home/${USER}/.openmpi') }}
 
     - name: get openmpi
@@ -40,15 +40,15 @@ jobs:
      
     - name: configure openmpi
       if: steps.cache-openmpi.outputs.cache-hit != 'true'
-      run: ./openmpi-4.1.0/configure --prefix="~/openmpi/${{ env.mpi_ver }}"
+      run: ./openmpi-4.1.0/configure --prefix="/home/${USER}/openmpi/${{ env.mpi_ver }}"
       
     - name: install openmpi
       if: steps.cache-openmpi.outputs.cache-hit != 'true'
       run: |
         make -j 2
         sudo make install
-        export PATH="~/openmpi/${{ env.mpi_ver }}/bin:$PATH:"
-        export LD_LIBRARY_PATH="~/openmpi/${{ env.mpi_ver }}/lib:$LD_LIBRARY_PATH:"
+        export PATH="/home/${USER}/openmpi/${{ env.mpi_ver }}/bin:$PATH:"
+        export LD_LIBRARY_PATH="/home/${USER}/openmpi/${{ env.mpi_ver }}/lib:$LD_LIBRARY_PATH:"
         
         
     - name: test if openmpi is installed correctly
